@@ -97,43 +97,8 @@ let gameState = {
     lastUpdate: Date.now(),
 };
 
-// ===== DOM Elements =====
-const elements = {
-    pet: document.getElementById('pet'),
-    petContainer: document.getElementById('petContainer'),
-    happinessBar: document.getElementById('happinessBar'),
-    hungerBar: document.getElementById('hungerBar'),
-    coinAmount: document.getElementById('coinAmount'),
-    feedBtn: document.getElementById('feedBtn'),
-    petBtn: document.getElementById('petBtn'),
-    dressBtn: document.getElementById('dressBtn'),
-    gamesBtn: document.getElementById('gamesBtn'),
-    dressModal: document.getElementById('dressModal'),
-    gamesModal: document.getElementById('gamesModal'),
-    closeModal: document.getElementById('closeModal'),
-    closeGamesModal: document.getElementById('closeGamesModal'),
-    floatingItems: document.getElementById('floatingItems'),
-    reactionBubble: document.getElementById('reactionBubble'),
-    accessories: document.getElementById('accessories'),
-    hatsGrid: document.getElementById('hatsGrid'),
-    accessoriesGrid: document.getElementById('accessoriesGrid'),
-    colorsGrid: document.getElementById('colorsGrid'),
-    modalCoins: document.getElementById('modalCoins'),
-    gamesModalCoins: document.getElementById('gamesModalCoins'),
-    toast: document.getElementById('toast'),
-    toastMessage: document.getElementById('toastMessage'),
-    // Game elements
-    gamesList: document.querySelector('.games-list'),
-    memoryGame: document.getElementById('memoryGame'),
-    reactionGame: document.getElementById('reactionGame'),
-    sequenceGame: document.getElementById('sequenceGame'),
-    gameResult: document.getElementById('gameResult'),
-    playMemory: document.getElementById('playMemory'),
-    playReaction: document.getElementById('playReaction'),
-    playSequence: document.getElementById('playSequence'),
-    playAgainBtn: document.getElementById('playAgainBtn'),
-    backToGamesBtn: document.getElementById('backToGamesBtn'),
-};
+// ===== DOM Elements (populated in init) =====
+let elements = {};
 
 // ===== Cooldown State =====
 let cooldowns = {
@@ -147,6 +112,44 @@ let gameTimers = [];
 
 // ===== Initialize Game =====
 function init() {
+    // Query DOM elements now that DOM is ready
+    elements = {
+        pet: document.getElementById('pet'),
+        petContainer: document.getElementById('petContainer'),
+        happinessBar: document.getElementById('happinessBar'),
+        hungerBar: document.getElementById('hungerBar'),
+        coinAmount: document.getElementById('coinAmount'),
+        feedBtn: document.getElementById('feedBtn'),
+        petBtn: document.getElementById('petBtn'),
+        dressBtn: document.getElementById('dressBtn'),
+        gamesBtn: document.getElementById('gamesBtn'),
+        dressModal: document.getElementById('dressModal'),
+        gamesModal: document.getElementById('gamesModal'),
+        closeModal: document.getElementById('closeModal'),
+        closeGamesModal: document.getElementById('closeGamesModal'),
+        floatingItems: document.getElementById('floatingItems'),
+        reactionBubble: document.getElementById('reactionBubble'),
+        accessories: document.getElementById('accessories'),
+        hatsGrid: document.getElementById('hatsGrid'),
+        accessoriesGrid: document.getElementById('accessoriesGrid'),
+        colorsGrid: document.getElementById('colorsGrid'),
+        modalCoins: document.getElementById('modalCoins'),
+        gamesModalCoins: document.getElementById('gamesModalCoins'),
+        toast: document.getElementById('toast'),
+        toastMessage: document.getElementById('toastMessage'),
+        // Game elements
+        gamesList: document.querySelector('.games-list'),
+        memoryGame: document.getElementById('memoryGame'),
+        reactionGame: document.getElementById('reactionGame'),
+        sequenceGame: document.getElementById('sequenceGame'),
+        gameResult: document.getElementById('gameResult'),
+        playMemory: document.getElementById('playMemory'),
+        playReaction: document.getElementById('playReaction'),
+        playSequence: document.getElementById('playSequence'),
+        playAgainBtn: document.getElementById('playAgainBtn'),
+        backToGamesBtn: document.getElementById('backToGamesBtn'),
+    };
+
     loadGameState();
     calculateDecay();
     updateUI();
