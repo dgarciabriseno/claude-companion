@@ -53,11 +53,11 @@ const PRICES = {
 const WARDROBE = {
     hats: [
         { id: 'none', emoji: '✕', name: 'None' },
-        { id: 'bow', emoji: '🎀', name: 'Bow', svg: `<g class="accessory hat-bow"><circle cx="130" cy="55" r="12" fill="#FF69B4"/><circle cx="150" cy="55" r="12" fill="#FF69B4"/><circle cx="140" cy="55" r="6" fill="#FF1493"/></g>` },
-        { id: 'crown', emoji: '👑', name: 'Crown', svg: `<g class="accessory hat-crown"><path d="M75 55 L85 35 L100 50 L115 35 L125 55 Z" fill="#FFD700" stroke="#FFA500" stroke-width="2"/><circle cx="85" cy="40" r="4" fill="#FF69B4"/><circle cx="100" cy="45" r="4" fill="#87CEEB"/><circle cx="115" cy="40" r="4" fill="#FF69B4"/></g>` },
-        { id: 'cap', emoji: '🧢', name: 'Cap', svg: `<g class="accessory hat-cap"><ellipse cx="100" cy="60" rx="45" ry="15" fill="#4169E1"/><path d="M55 60 Q55 40 100 40 Q145 40 145 60" fill="#4169E1"/><ellipse cx="55" cy="62" rx="20" ry="8" fill="#4169E1"/></g>` },
-        { id: 'flower', emoji: '🌸', name: 'Flower', svg: `<g class="accessory hat-flower"><circle cx="135" cy="60" r="8" fill="#FFB6C1"/><circle cx="145" cy="68" r="8" fill="#FFB6C1"/><circle cx="145" cy="52" r="8" fill="#FFB6C1"/><circle cx="155" cy="60" r="8" fill="#FFB6C1"/><circle cx="145" cy="60" r="5" fill="#FFD700"/></g>` },
-        { id: 'party', emoji: '🎉', name: 'Party Hat', svg: `<g class="accessory hat-party"><path d="M100 25 L80 70 L120 70 Z" fill="#FF69B4"/><circle cx="100" cy="25" r="6" fill="#FFD700"/><circle cx="90" cy="50" r="3" fill="#87CEEB"/><circle cx="105" cy="45" r="3" fill="#98FB98"/><circle cx="95" cy="60" r="3" fill="#FFD700"/></g>` },
+        { id: 'bow', emoji: '🎀', name: 'Bow', svg: `<g class="accessory hat-bow"><circle cx="90" cy="52" r="12" fill="#FF69B4"/><circle cx="110" cy="52" r="12" fill="#FF69B4"/><circle cx="100" cy="52" r="6" fill="#FF1493"/></g>` },
+        { id: 'crown', emoji: '👑', name: 'Crown', svg: `<g class="accessory hat-crown"><path d="M70 62 L82 42 L100 55 L118 42 L130 62 Z" fill="#FFD700" stroke="#FFA500" stroke-width="2"/><circle cx="82" cy="47" r="4" fill="#FF69B4"/><circle cx="100" cy="52" r="4" fill="#87CEEB"/><circle cx="118" cy="47" r="4" fill="#FF69B4"/></g>` },
+        { id: 'cap', emoji: '🧢', name: 'Cap', svg: `<g class="accessory hat-cap"><ellipse cx="100" cy="58" rx="42" ry="14" fill="#4169E1"/><path d="M58 58 Q58 40 100 40 Q142 40 142 58" fill="#4169E1"/><ellipse cx="58" cy="60" rx="18" ry="7" fill="#4169E1"/></g>` },
+        { id: 'flower', emoji: '🌸', name: 'Flower', svg: `<g class="accessory hat-flower"><circle cx="55" cy="55" r="8" fill="#FFB6C1"/><circle cx="48" cy="48" r="8" fill="#FFB6C1"/><circle cx="62" cy="48" r="8" fill="#FFB6C1"/><circle cx="48" cy="62" r="8" fill="#FFB6C1"/><circle cx="62" cy="62" r="8" fill="#FFB6C1"/><circle cx="55" cy="55" r="5" fill="#FFD700"/></g>` },
+        { id: 'party', emoji: '🎉', name: 'Party Hat', svg: `<g class="accessory hat-party"><path d="M100 20 L78 68 L122 68 Z" fill="#FF69B4"/><circle cx="100" cy="20" r="6" fill="#FFD700"/><circle cx="88" cy="48" r="3" fill="#87CEEB"/><circle cx="105" cy="42" r="3" fill="#98FB98"/><circle cx="95" cy="58" r="3" fill="#FFD700"/></g>` },
     ],
     accessories: [
         { id: 'none', emoji: '✕', name: 'None' },

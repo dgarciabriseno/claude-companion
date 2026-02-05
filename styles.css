@@ -555,27 +555,6 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Hat positions */
-.hat-bow {
-    transform: translate(-30px, -50px);
-}
-
-.hat-crown {
-    transform: translate(-25px, -55px);
-}
-
-.hat-cap {
-    transform: translate(-30px, -45px);
-}
-
-.hat-flower {
-    transform: translate(-15px, -45px);
-}
-
-.hat-party {
-    transform: translate(-25px, -55px);
-}
-
 /* ===== Responsive Design ===== */
 @media (min-width: 400px) {
     .pet-container {
