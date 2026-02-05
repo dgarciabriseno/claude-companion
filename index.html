@@ -1,241 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#a8d8ea">
-    <title>Blobby - Virtual Pet</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#a8d8ea">
+  <title>Blobby - 3D Virtual Pet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
-    <div class="app">
-        <!-- Header with stats -->
-        <header class="header">
-            <div class="header-top">
-                <h1 class="pet-name" id="petName">Blobby</h1>
-                <div class="coins-display">
-                    <span class="coin-icon">🪙</span>
-                    <span class="coin-amount" id="coinAmount">0</span>
-                </div>
-            </div>
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-icon">❤️</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill happiness-fill" id="happinessBar"></div>
-                    </div>
-                </div>
-                <div class="stat">
-                    <span class="stat-icon">🍎</span>
-                    <div class="stat-bar">
-                        <div class="stat-fill hunger-fill" id="hungerBar"></div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Pet Display Area -->
-        <main class="pet-area" id="petArea">
-            <div class="background-elements">
-                <div class="cloud cloud-1"></div>
-                <div class="cloud cloud-2"></div>
-                <div class="cloud cloud-3"></div>
-            </div>
-
-            <div class="pet-container" id="petContainer">
-                <!-- Pet SVG -->
-                <svg class="pet" id="pet" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Pet Body -->
-                    <ellipse class="pet-body" cx="100" cy="120" rx="70" ry="60" fill="#FFB6C1"/>
-
-                    <!-- Blush -->
-                    <ellipse class="blush left-blush" cx="55" cy="115" rx="12" ry="8" fill="#FF8FAB" opacity="0.6"/>
-                    <ellipse class="blush right-blush" cx="145" cy="115" rx="12" ry="8" fill="#FF8FAB" opacity="0.6"/>
-
-                    <!-- Eyes -->
-                    <g class="eyes">
-                        <ellipse class="eye left-eye" cx="75" cy="100" rx="12" ry="14" fill="#333"/>
-                        <ellipse class="eye-shine" cx="79" cy="95" rx="4" ry="5" fill="#fff"/>
-                        <ellipse class="eye right-eye" cx="125" cy="100" rx="12" ry="14" fill="#333"/>
-                        <ellipse class="eye-shine" cx="129" cy="95" rx="4" ry="5" fill="#fff"/>
-                    </g>
-
-                    <!-- Happy Eyes (hidden by default) -->
-                    <g class="happy-eyes" style="display: none;">
-                        <path class="happy-eye" d="M 63 100 Q 75 88 87 100" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>
-                        <path class="happy-eye" d="M 113 100 Q 125 88 137 100" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>
-                    </g>
-
-                    <!-- Mouth -->
-                    <path class="mouth" d="M 85 130 Q 100 145 115 130" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
-
-                    <!-- Eating Mouth (hidden by default) -->
-                    <ellipse class="eating-mouth" cx="100" cy="135" rx="10" ry="12" fill="#333" style="display: none;"/>
-
-                    <!-- Ears -->
-                    <ellipse class="ear left-ear" cx="45" cy="70" rx="15" ry="20" fill="#FFB6C1"/>
-                    <ellipse class="ear-inner" cx="45" cy="70" rx="8" ry="12" fill="#FF8FAB"/>
-                    <ellipse class="ear right-ear" cx="155" cy="70" rx="15" ry="20" fill="#FFB6C1"/>
-                    <ellipse class="ear-inner" cx="155" cy="70" rx="8" ry="12" fill="#FF8FAB"/>
-
-                    <!-- Arms -->
-                    <ellipse class="arm left-arm" cx="35" cy="130" rx="12" ry="18" fill="#FFB6C1"/>
-                    <ellipse class="arm right-arm" cx="165" cy="130" rx="12" ry="18" fill="#FFB6C1"/>
-
-                    <!-- Feet -->
-                    <ellipse class="foot left-foot" cx="70" cy="175" rx="18" ry="10" fill="#FFB6C1"/>
-                    <ellipse class="foot right-foot" cx="130" cy="175" rx="18" ry="10" fill="#FFB6C1"/>
-
-                    <!-- Accessories Container -->
-                    <g class="accessories" id="accessories"></g>
-                </svg>
-
-                <!-- Floating elements for interactions -->
-                <div class="floating-items" id="floatingItems"></div>
-
-                <!-- Pet reaction bubble -->
-                <div class="reaction-bubble" id="reactionBubble"></div>
-            </div>
-
-            <!-- Ground -->
-            <div class="ground"></div>
-        </main>
-
-        <!-- Action Buttons -->
-        <nav class="actions">
-            <button class="action-btn feed-btn" id="feedBtn" aria-label="Feed pet">
-                <span class="btn-icon">🍎</span>
-                <span class="btn-label">Feed</span>
-                <span class="btn-price" id="feedPrice">🪙 5</span>
-            </button>
-            <button class="action-btn pet-btn" id="petBtn" aria-label="Pet">
-                <span class="btn-icon">✋</span>
-                <span class="btn-label">Pet</span>
-            </button>
-            <button class="action-btn dress-btn" id="dressBtn" aria-label="Dress up">
-                <span class="btn-icon">👗</span>
-                <span class="btn-label">Shop</span>
-            </button>
-            <button class="action-btn games-btn" id="gamesBtn" aria-label="Play games">
-                <span class="btn-icon">🎮</span>
-                <span class="btn-label">Work</span>
-            </button>
-        </nav>
-
-        <!-- Shop Modal -->
-        <div class="modal" id="dressModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Shop</h2>
-                    <div class="modal-coins">🪙 <span id="modalCoins">0</span></div>
-                    <button class="close-btn" id="closeModal" aria-label="Close">×</button>
-                </div>
-                <div class="wardrobe">
-                    <div class="wardrobe-category">
-                        <h3>Hats</h3>
-                        <div class="items-grid" id="hatsGrid"></div>
-                    </div>
-                    <div class="wardrobe-category">
-                        <h3>Accessories</h3>
-                        <div class="items-grid" id="accessoriesGrid"></div>
-                    </div>
-                    <div class="wardrobe-category">
-                        <h3>Colors</h3>
-                        <div class="items-grid" id="colorsGrid"></div>
-                    </div>
-                </div>
-            </div>
+  <div class="app" id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-top">
+        <h1 class="pet-name">Blobby</h1>
+        <div class="coins-display">
+          <span class="coin-icon">🪙</span>
+          <span class="coin-amount" id="coinAmount">0</span>
         </div>
-
-        <!-- Games Modal -->
-        <div class="modal" id="gamesModal">
-            <div class="modal-content games-modal-content">
-                <div class="modal-header">
-                    <h2>Work for Coins</h2>
-                    <div class="modal-coins">🪙 <span id="gamesModalCoins">0</span></div>
-                    <button class="close-btn" id="closeGamesModal" aria-label="Close">×</button>
-                </div>
-                <div class="games-list">
-                    <button class="game-select-btn" id="playMemory">
-                        <span class="game-icon">🧠</span>
-                        <div class="game-info">
-                            <span class="game-name">Memory Match</span>
-                            <span class="game-desc">Match pairs before time runs out</span>
-                        </div>
-                        <span class="game-reward">🪙 3-8</span>
-                    </button>
-                    <button class="game-select-btn" id="playReaction">
-                        <span class="game-icon">⚡</span>
-                        <div class="game-info">
-                            <span class="game-name">Quick Catch</span>
-                            <span class="game-desc">Catch the falling treats precisely</span>
-                        </div>
-                        <span class="game-reward">🪙 2-6</span>
-                    </button>
-                    <button class="game-select-btn" id="playSequence">
-                        <span class="game-icon">🎵</span>
-                        <div class="game-info">
-                            <span class="game-name">Simon Says</span>
-                            <span class="game-desc">Remember the pattern sequence</span>
-                        </div>
-                        <span class="game-reward">🪙 4-12</span>
-                    </button>
-                </div>
-
-                <!-- Game Areas (hidden by default) -->
-                <div class="game-area" id="memoryGame" style="display: none;">
-                    <div class="game-header">
-                        <span class="game-timer" id="memoryTimer">⏱️ 20s</span>
-                        <span class="game-score" id="memoryScore">Pairs: 0/6</span>
-                    </div>
-                    <div class="memory-grid" id="memoryGrid"></div>
-                </div>
-
-                <div class="game-area" id="reactionGame" style="display: none;">
-                    <div class="game-header">
-                        <span class="game-timer" id="reactionTimer">⏱️ 15s</span>
-                        <span class="game-score" id="reactionScore">Caught: 0</span>
-                    </div>
-                    <div class="reaction-zone" id="reactionZone">
-                        <div class="catch-target" id="catchTarget"></div>
-                        <div class="catcher" id="catcher">🧺</div>
-                    </div>
-                </div>
-
-                <div class="game-area" id="sequenceGame" style="display: none;">
-                    <div class="game-header">
-                        <span class="game-level" id="sequenceLevel">Level: 1</span>
-                        <span class="game-status" id="sequenceStatus">Watch...</span>
-                    </div>
-                    <div class="sequence-grid" id="sequenceGrid">
-                        <button class="sequence-btn" data-index="0" style="background: #FF6B6B;"></button>
-                        <button class="sequence-btn" data-index="1" style="background: #4ECDC4;"></button>
-                        <button class="sequence-btn" data-index="2" style="background: #FFE66D;"></button>
-                        <button class="sequence-btn" data-index="3" style="background: #95E1D3;"></button>
-                    </div>
-                </div>
-
-                <!-- Game Result -->
-                <div class="game-result" id="gameResult" style="display: none;">
-                    <div class="result-icon" id="resultIcon">😢</div>
-                    <div class="result-text" id="resultText">You earned nothing...</div>
-                    <div class="result-coins" id="resultCoins"></div>
-                    <button class="play-again-btn" id="playAgainBtn">Try Again</button>
-                    <button class="back-to-games-btn" id="backToGamesBtn">Back to Jobs</button>
-                </div>
-            </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-icon">❤️</span>
+          <div class="stat-bar">
+            <div class="stat-fill happiness-fill" id="happinessBar"></div>
+          </div>
         </div>
-
-        <!-- Not enough coins warning -->
-        <div class="toast" id="toast">
-            <span class="toast-icon">😰</span>
-            <span class="toast-message" id="toastMessage">Not enough coins...</span>
+        <div class="stat">
+          <span class="stat-icon">🍎</span>
+          <div class="stat-bar">
+            <div class="stat-fill hunger-fill" id="hungerBar"></div>
+          </div>
         </div>
+      </div>
+    </header>
+
+    <!-- 3D Canvas Area -->
+    <main class="pet-area">
+      <canvas id="petCanvas"></canvas>
+      <div class="reaction-bubble" id="reactionBubble"></div>
+    </main>
+
+    <!-- Action Buttons -->
+    <nav class="actions">
+      <button class="action-btn feed-btn" id="feedBtn" data-testid="feed-btn">
+        <span class="btn-icon">🍎</span>
+        <span class="btn-label">Feed</span>
+        <span class="btn-price">🪙 5</span>
+      </button>
+      <button class="action-btn pet-btn" id="petBtn" data-testid="pet-btn">
+        <span class="btn-icon">✋</span>
+        <span class="btn-label">Pet</span>
+      </button>
+      <button class="action-btn shop-btn" id="shopBtn" data-testid="shop-btn">
+        <span class="btn-icon">👗</span>
+        <span class="btn-label">Shop</span>
+      </button>
+      <button class="action-btn work-btn" id="workBtn" data-testid="work-btn">
+        <span class="btn-icon">🎮</span>
+        <span class="btn-label">Work</span>
+      </button>
+    </nav>
+
+    <!-- Shop Modal -->
+    <div class="modal" id="shopModal" data-testid="shop-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Shop</h2>
+          <div class="modal-coins">🪙 <span id="shopCoins">0</span></div>
+          <button class="close-btn" id="closeShop">×</button>
+        </div>
+        <div class="shop-content" id="shopContent"></div>
+      </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Games Modal -->
+    <div class="modal" id="gamesModal" data-testid="games-modal">
+      <div class="modal-content games-modal-content">
+        <div class="modal-header">
+          <h2>Work for Coins</h2>
+          <div class="modal-coins">🪙 <span id="gamesCoins">0</span></div>
+          <button class="close-btn" id="closeGames">×</button>
+        </div>
+        <div class="games-content" id="gamesContent">
+          <!-- Games List -->
+          <div class="games-list" id="gamesList">
+            <button class="game-select-btn" data-game="memory">
+              <span class="game-icon">🧠</span>
+              <div class="game-info">
+                <span class="game-name">Memory Match</span>
+                <span class="game-desc">Match pairs before time runs out</span>
+              </div>
+              <span class="game-reward">🪙 3-8</span>
+            </button>
+            <button class="game-select-btn" data-game="sequence">
+              <span class="game-icon">🎵</span>
+              <div class="game-info">
+                <span class="game-name">Simon Says</span>
+                <span class="game-desc">Remember the pattern sequence</span>
+              </div>
+              <span class="game-reward">🪙 4-12</span>
+            </button>
+            <button class="game-select-btn" data-game="reaction">
+              <span class="game-icon">⚡</span>
+              <div class="game-info">
+                <span class="game-name">Quick Catch</span>
+                <span class="game-desc">Catch falling treats</span>
+              </div>
+              <span class="game-reward">🪙 2-6</span>
+            </button>
+          </div>
+
+          <!-- Game Areas -->
+          <div class="game-area" id="memoryGameArea" style="display:none;">
+            <div class="game-header">
+              <span class="game-timer" id="memoryTimer">⏱️ 18s</span>
+              <span class="game-score" id="memoryScore">Pairs: 0/6</span>
+            </div>
+            <div class="memory-grid" id="memoryGrid"></div>
+          </div>
+
+          <div class="game-area" id="sequenceGameArea" style="display:none;">
+            <div class="game-header">
+              <span class="game-level" id="sequenceLevel">Level: 1</span>
+              <span class="game-status" id="sequenceStatus">Watch...</span>
+            </div>
+            <div class="sequence-grid" id="sequenceGrid">
+              <button class="sequence-btn" data-index="0"></button>
+              <button class="sequence-btn" data-index="1"></button>
+              <button class="sequence-btn" data-index="2"></button>
+              <button class="sequence-btn" data-index="3"></button>
+            </div>
+          </div>
+
+          <div class="game-area" id="reactionGameArea" style="display:none;">
+            <div class="game-header">
+              <span class="game-timer" id="reactionTimer">⏱️ 12s</span>
+              <span class="game-score" id="reactionScore">Caught: 0</span>
+            </div>
+            <div class="reaction-zone" id="reactionZone">
+              <div class="catcher" id="catcher">🧺</div>
+            </div>
+          </div>
+
+          <!-- Game Result -->
+          <div class="game-result" id="gameResult" style="display:none;">
+            <div class="result-icon" id="resultIcon">😢</div>
+            <div class="result-text" id="resultText">You earned nothing...</div>
+            <div class="result-coins" id="resultCoins"></div>
+            <button class="play-again-btn" id="playAgainBtn">Try Again</button>
+            <button class="back-btn" id="backToGamesBtn">Back to Jobs</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <span class="toast-icon" id="toastIcon">😰</span>
+      <span class="toast-message" id="toastMessage"></span>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>
