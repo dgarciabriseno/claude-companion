@@ -14,7 +14,13 @@
     <div class="app">
         <!-- Header with stats -->
         <header class="header">
-            <h1 class="pet-name" id="petName">Blobby</h1>
+            <div class="header-top">
+                <h1 class="pet-name" id="petName">Blobby</h1>
+                <div class="coins-display">
+                    <span class="coin-icon">🪙</span>
+                    <span class="coin-amount" id="coinAmount">0</span>
+                </div>
+            </div>
             <div class="stats">
                 <div class="stat">
                     <span class="stat-icon">❤️</span>
@@ -103,6 +109,7 @@
             <button class="action-btn feed-btn" id="feedBtn" aria-label="Feed pet">
                 <span class="btn-icon">🍎</span>
                 <span class="btn-label">Feed</span>
+                <span class="btn-price" id="feedPrice">🪙 5</span>
             </button>
             <button class="action-btn pet-btn" id="petBtn" aria-label="Pet">
                 <span class="btn-icon">✋</span>
@@ -110,15 +117,20 @@
             </button>
             <button class="action-btn dress-btn" id="dressBtn" aria-label="Dress up">
                 <span class="btn-icon">👗</span>
-                <span class="btn-label">Dress</span>
+                <span class="btn-label">Shop</span>
+            </button>
+            <button class="action-btn games-btn" id="gamesBtn" aria-label="Play games">
+                <span class="btn-icon">🎮</span>
+                <span class="btn-label">Work</span>
             </button>
         </nav>
 
-        <!-- Dress Up Modal -->
+        <!-- Shop Modal -->
         <div class="modal" id="dressModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Dress Up</h2>
+                    <h2>Shop</h2>
+                    <div class="modal-coins">🪙 <span id="modalCoins">0</span></div>
                     <button class="close-btn" id="closeModal" aria-label="Close">×</button>
                 </div>
                 <div class="wardrobe">
@@ -136,6 +148,91 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Games Modal -->
+        <div class="modal" id="gamesModal">
+            <div class="modal-content games-modal-content">
+                <div class="modal-header">
+                    <h2>Work for Coins</h2>
+                    <div class="modal-coins">🪙 <span id="gamesModalCoins">0</span></div>
+                    <button class="close-btn" id="closeGamesModal" aria-label="Close">×</button>
+                </div>
+                <div class="games-list">
+                    <button class="game-select-btn" id="playMemory">
+                        <span class="game-icon">🧠</span>
+                        <div class="game-info">
+                            <span class="game-name">Memory Match</span>
+                            <span class="game-desc">Match pairs before time runs out</span>
+                        </div>
+                        <span class="game-reward">🪙 3-8</span>
+                    </button>
+                    <button class="game-select-btn" id="playReaction">
+                        <span class="game-icon">⚡</span>
+                        <div class="game-info">
+                            <span class="game-name">Quick Catch</span>
+                            <span class="game-desc">Catch the falling treats precisely</span>
+                        </div>
+                        <span class="game-reward">🪙 2-6</span>
+                    </button>
+                    <button class="game-select-btn" id="playSequence">
+                        <span class="game-icon">🎵</span>
+                        <div class="game-info">
+                            <span class="game-name">Simon Says</span>
+                            <span class="game-desc">Remember the pattern sequence</span>
+                        </div>
+                        <span class="game-reward">🪙 4-12</span>
+                    </button>
+                </div>
+
+                <!-- Game Areas (hidden by default) -->
+                <div class="game-area" id="memoryGame" style="display: none;">
+                    <div class="game-header">
+                        <span class="game-timer" id="memoryTimer">⏱️ 20s</span>
+                        <span class="game-score" id="memoryScore">Pairs: 0/6</span>
+                    </div>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                </div>
+
+                <div class="game-area" id="reactionGame" style="display: none;">
+                    <div class="game-header">
+                        <span class="game-timer" id="reactionTimer">⏱️ 15s</span>
+                        <span class="game-score" id="reactionScore">Caught: 0</span>
+                    </div>
+                    <div class="reaction-zone" id="reactionZone">
+                        <div class="catch-target" id="catchTarget"></div>
+                        <div class="catcher" id="catcher">🧺</div>
+                    </div>
+                </div>
+
+                <div class="game-area" id="sequenceGame" style="display: none;">
+                    <div class="game-header">
+                        <span class="game-level" id="sequenceLevel">Level: 1</span>
+                        <span class="game-status" id="sequenceStatus">Watch...</span>
+                    </div>
+                    <div class="sequence-grid" id="sequenceGrid">
+                        <button class="sequence-btn" data-index="0" style="background: #FF6B6B;"></button>
+                        <button class="sequence-btn" data-index="1" style="background: #4ECDC4;"></button>
+                        <button class="sequence-btn" data-index="2" style="background: #FFE66D;"></button>
+                        <button class="sequence-btn" data-index="3" style="background: #95E1D3;"></button>
+                    </div>
+                </div>
+
+                <!-- Game Result -->
+                <div class="game-result" id="gameResult" style="display: none;">
+                    <div class="result-icon" id="resultIcon">😢</div>
+                    <div class="result-text" id="resultText">You earned nothing...</div>
+                    <div class="result-coins" id="resultCoins"></div>
+                    <button class="play-again-btn" id="playAgainBtn">Try Again</button>
+                    <button class="back-to-games-btn" id="backToGamesBtn">Back to Jobs</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not enough coins warning -->
+        <div class="toast" id="toast">
+            <span class="toast-icon">😰</span>
+            <span class="toast-message" id="toastMessage">Not enough coins...</span>
         </div>
     </div>
 

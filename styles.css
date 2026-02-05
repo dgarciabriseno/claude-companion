@@ -680,3 +680,464 @@ body {
     outline: 3px solid var(--accent-color);
     outline-offset: 2px;
 }
+
+/* ===== Header Top with Coins ===== */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.pet-name {
+    margin-bottom: 0;
+}
+
+.coins-display {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: linear-gradient(145deg, #fff9e6, #ffefb3);
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    font-weight: 700;
+    color: #b8860b;
+}
+
+.coin-icon {
+    font-size: 1.1rem;
+}
+
+.coin-amount {
+    font-size: 1rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* ===== Button Price Tags ===== */
+.btn-price {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #b8860b;
+    background: #fff9e6;
+    padding: 0.15rem 0.4rem;
+    border-radius: 8px;
+    margin-top: 0.15rem;
+}
+
+.action-btn.cant-afford .btn-price {
+    color: #cc4444;
+    background: #ffe5e5;
+}
+
+.action-btn.cant-afford {
+    opacity: 0.7;
+}
+
+/* Games button */
+.games-btn:hover, .games-btn:focus {
+    background: linear-gradient(145deg, #e5fff0, #ccffdd);
+}
+
+.games-btn:active {
+    background: linear-gradient(145deg, #d5ffe5, #bbffcc);
+}
+
+/* ===== Modal Coins Display ===== */
+.modal-coins {
+    font-weight: 700;
+    color: #b8860b;
+    font-size: 1rem;
+}
+
+/* ===== Games Modal ===== */
+.games-modal-content {
+    max-height: 85vh;
+}
+
+.games-list {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.game-select-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #f8f8f8, #eeeeee);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    box-shadow: var(--shadow);
+}
+
+.game-select-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.game-select-btn:active {
+    transform: scale(0.98);
+}
+
+.game-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.game-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.game-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.game-desc {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.game-reward {
+    font-weight: 700;
+    color: #b8860b;
+    font-size: 0.9rem;
+    background: #fff9e6;
+    padding: 0.3rem 0.6rem;
+    border-radius: 10px;
+}
+
+/* ===== Game Areas ===== */
+.game-area {
+    padding: 1rem;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f5f5f5;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.game-timer {
+    color: #e74c3c;
+}
+
+.game-timer.warning {
+    animation: timer-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); color: #c0392b; }
+}
+
+/* ===== Memory Game ===== */
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.memory-card {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #aa96da, #8b7cc0);
+    cursor: pointer;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.memory-card.flipped {
+    background: var(--white);
+    transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+    background: #d4edda;
+    cursor: default;
+    opacity: 0.7;
+}
+
+.memory-card:not(.flipped):not(.matched):hover {
+    transform: scale(1.05);
+}
+
+.memory-card:not(.flipped):not(.matched):active {
+    transform: scale(0.95);
+}
+
+/* ===== Reaction Game ===== */
+.reaction-zone {
+    height: 250px;
+    background: linear-gradient(180deg, #87ceeb 0%, #98fb98 100%);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.catch-target {
+    position: absolute;
+    font-size: 2rem;
+    transition: left 0.1s linear;
+    top: -50px;
+}
+
+.catch-target.falling {
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    from { top: -50px; }
+    to { top: 260px; }
+}
+
+.catcher {
+    position: absolute;
+    bottom: 10px;
+    font-size: 2.5rem;
+    transform: translateX(-50%);
+    transition: left 0.05s linear;
+    left: 50%;
+}
+
+/* ===== Sequence Game ===== */
+.sequence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 250px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.sequence-btn {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow);
+    opacity: 0.7;
+}
+
+.sequence-btn:hover {
+    opacity: 0.85;
+}
+
+.sequence-btn.active {
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px currentColor;
+}
+
+.sequence-btn:disabled {
+    cursor: not-allowed;
+}
+
+.sequence-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+/* ===== Game Result ===== */
+.game-result {
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.result-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.result-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.result-coins {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #b8860b;
+    margin-bottom: 1.5rem;
+}
+
+.play-again-btn, .back-to-games-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0.25rem;
+}
+
+.play-again-btn {
+    background: linear-gradient(145deg, #aa96da, #8b7cc0);
+    color: white;
+}
+
+.play-again-btn:hover {
+    transform: scale(1.05);
+}
+
+.back-to-games-btn {
+    background: #f0f0f0;
+    color: var(--text-color);
+}
+
+/* ===== Shop Items with Prices ===== */
+.wardrobe-item {
+    position: relative;
+    flex-direction: column;
+}
+
+.item-price {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #b8860b;
+    background: #fff9e6;
+    padding: 0.1rem 0.3rem;
+    border-radius: 6px;
+}
+
+.wardrobe-item.owned .item-price {
+    display: none;
+}
+
+.wardrobe-item.owned::after {
+    content: '✓';
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.7rem;
+    color: #27ae60;
+}
+
+.wardrobe-item.locked {
+    opacity: 0.6;
+}
+
+.wardrobe-item.locked:hover {
+    transform: none;
+}
+
+.wardrobe-item.equipped {
+    border-color: #27ae60;
+    background: #e8f8e8;
+}
+
+/* ===== Toast Notification ===== */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--white);
+    padding: 0.75rem 1.25rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 200;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-icon {
+    font-size: 1.5rem;
+}
+
+.toast-message {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* ===== Sad Pet State ===== */
+.pet.sad {
+    animation: sad-droop 2s ease-in-out infinite;
+}
+
+@keyframes sad-droop {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(5px) rotate(-2deg); }
+}
+
+/* ===== Responsive adjustments for games ===== */
+@media (max-width: 350px) {
+    .memory-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .memory-card {
+        font-size: 1.5rem;
+    }
+
+    .game-select-btn {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .game-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+    }
+}
+
+@media (max-height: 600px) {
+    .games-modal-content {
+        max-height: 90vh;
+    }
+
+    .reaction-zone {
+        height: 180px;
+    }
+
+    .sequence-grid {
+        max-width: 200px;
+        gap: 0.75rem;
+    }
+}

@@ -1,19 +1,52 @@
 /**
  * Blobby - Virtual Pet Game
- * A cute virtual pet with feeding, petting, and dress-up features
+ * A cute virtual pet with feeding, petting, dress-up, and minigames
+ * Features a coin economy that creates anxious attachment
  */
 
 // ===== Game Configuration =====
 const CONFIG = {
     STORAGE_KEY: 'blobby_pet_data',
-    DECAY_INTERVAL: 30000, // Stats decay every 30 seconds
-    DECAY_AMOUNT: 2,
-    FEED_AMOUNT: 15,
-    PET_AMOUNT: 10,
+    DECAY_INTERVAL: 20000, // Stats decay every 20 seconds (faster = more anxiety)
+    DECAY_AMOUNT: 3, // Higher decay for more urgency
+    FEED_AMOUNT: 12,
+    PET_AMOUNT: 8,
     MAX_STAT: 100,
     MIN_STAT: 0,
     COOLDOWN_FEED: 500,
     COOLDOWN_PET: 300,
+    FOOD_COST: 5, // Cost to feed pet
+    STARTING_COINS: 10, // Just enough for 2 feedings to start
+};
+
+// ===== Shop Prices =====
+const PRICES = {
+    hats: {
+        none: 0,
+        bow: 25,
+        crown: 50,
+        cap: 30,
+        flower: 20,
+        party: 35,
+    },
+    accessories: {
+        none: 0,
+        glasses: 20,
+        bowtie: 25,
+        scarf: 35,
+        necklace: 40,
+        star: 30,
+    },
+    colors: {
+        pink: 0, // Default color is free
+        blue: 15,
+        purple: 20,
+        mint: 15,
+        peach: 20,
+        lavender: 25,
+        yellow: 15,
+        coral: 20,
+    },
 };
 
 // ===== Wardrobe Items =====
@@ -48,12 +81,18 @@ const WARDROBE = {
 
 // ===== Game State =====
 let gameState = {
-    happiness: 80,
-    hunger: 70,
+    coins: CONFIG.STARTING_COINS,
+    happiness: 60,
+    hunger: 50,
     outfit: {
         hat: 'none',
         accessory: 'none',
         color: 'pink',
+    },
+    owned: {
+        hats: ['none'],
+        accessories: ['none'],
+        colors: ['pink'],
     },
     lastUpdate: Date.now(),
 };
@@ -64,17 +103,36 @@ const elements = {
     petContainer: document.getElementById('petContainer'),
     happinessBar: document.getElementById('happinessBar'),
     hungerBar: document.getElementById('hungerBar'),
+    coinAmount: document.getElementById('coinAmount'),
     feedBtn: document.getElementById('feedBtn'),
     petBtn: document.getElementById('petBtn'),
     dressBtn: document.getElementById('dressBtn'),
+    gamesBtn: document.getElementById('gamesBtn'),
     dressModal: document.getElementById('dressModal'),
+    gamesModal: document.getElementById('gamesModal'),
     closeModal: document.getElementById('closeModal'),
+    closeGamesModal: document.getElementById('closeGamesModal'),
     floatingItems: document.getElementById('floatingItems'),
     reactionBubble: document.getElementById('reactionBubble'),
     accessories: document.getElementById('accessories'),
     hatsGrid: document.getElementById('hatsGrid'),
     accessoriesGrid: document.getElementById('accessoriesGrid'),
     colorsGrid: document.getElementById('colorsGrid'),
+    modalCoins: document.getElementById('modalCoins'),
+    gamesModalCoins: document.getElementById('gamesModalCoins'),
+    toast: document.getElementById('toast'),
+    toastMessage: document.getElementById('toastMessage'),
+    // Game elements
+    gamesList: document.querySelector('.games-list'),
+    memoryGame: document.getElementById('memoryGame'),
+    reactionGame: document.getElementById('reactionGame'),
+    sequenceGame: document.getElementById('sequenceGame'),
+    gameResult: document.getElementById('gameResult'),
+    playMemory: document.getElementById('playMemory'),
+    playReaction: document.getElementById('playReaction'),
+    playSequence: document.getElementById('playSequence'),
+    playAgainBtn: document.getElementById('playAgainBtn'),
+    backToGamesBtn: document.getElementById('backToGamesBtn'),
 };
 
 // ===== Cooldown State =====
@@ -82,6 +140,10 @@ let cooldowns = {
     feed: false,
     pet: false,
 };
+
+// ===== Current Game State =====
+let currentGame = null;
+let gameTimers = [];
 
 // ===== Initialize Game =====
 function init() {
@@ -92,6 +154,7 @@ function init() {
     renderWardrobe();
     applyOutfit();
     startDecayTimer();
+    updatePetMood();
 
     // Start idle animation
     elements.pet.classList.add('idle');
@@ -106,9 +169,11 @@ function loadGameState() {
             gameState = {
                 ...gameState,
                 ...parsed,
-                outfit: {
-                    ...gameState.outfit,
-                    ...parsed.outfit,
+                outfit: { ...gameState.outfit, ...parsed.outfit },
+                owned: {
+                    hats: parsed.owned?.hats || ['none'],
+                    accessories: parsed.owned?.accessories || ['none'],
+                    colors: parsed.owned?.colors || ['pink'],
                 },
             };
         }
@@ -146,47 +211,92 @@ function startDecayTimer() {
         gameState.happiness = Math.max(CONFIG.MIN_STAT, gameState.happiness - CONFIG.DECAY_AMOUNT);
         gameState.hunger = Math.max(CONFIG.MIN_STAT, gameState.hunger - CONFIG.DECAY_AMOUNT);
         updateUI();
+        updatePetMood();
         saveGameState();
 
-        // Pet gets sad when stats are low
-        if (gameState.happiness < 30 || gameState.hunger < 30) {
+        // Pet shows distress when stats are low
+        if (gameState.hunger < 20) {
+            showReaction('😭');
+        } else if (gameState.happiness < 30 || gameState.hunger < 30) {
             showReaction('😢');
         }
     }, CONFIG.DECAY_INTERVAL);
+}
+
+// ===== Pet Mood =====
+function updatePetMood() {
+    elements.pet.classList.remove('sad');
+    if (gameState.hunger < 25 || gameState.happiness < 25) {
+        elements.pet.classList.add('sad');
+    }
 }
 
 // ===== UI Updates =====
 function updateUI() {
     elements.happinessBar.style.width = `${gameState.happiness}%`;
     elements.hungerBar.style.width = `${gameState.hunger}%`;
+    elements.coinAmount.textContent = gameState.coins;
+
+    if (elements.modalCoins) elements.modalCoins.textContent = gameState.coins;
+    if (elements.gamesModalCoins) elements.gamesModalCoins.textContent = gameState.coins;
+
+    // Update feed button affordability
+    if (gameState.coins < CONFIG.FOOD_COST) {
+        elements.feedBtn.classList.add('cant-afford');
+    } else {
+        elements.feedBtn.classList.remove('cant-afford');
+    }
+}
+
+// ===== Toast Notifications =====
+function showToast(message, icon = '😰') {
+    elements.toastMessage.textContent = message;
+    elements.toast.querySelector('.toast-icon').textContent = icon;
+    elements.toast.classList.add('show');
+
+    setTimeout(() => {
+        elements.toast.classList.remove('show');
+    }, 2500);
 }
 
 // ===== Event Listeners =====
 function setupEventListeners() {
-    // Feed button
     elements.feedBtn.addEventListener('click', feedPet);
-
-    // Pet button
     elements.petBtn.addEventListener('click', petThePet);
-
-    // Also allow clicking/tapping on pet directly to pet it
     elements.pet.addEventListener('click', petThePet);
-
-    // Dress button
     elements.dressBtn.addEventListener('click', openDressModal);
+    elements.gamesBtn.addEventListener('click', openGamesModal);
 
-    // Close modal
     elements.closeModal.addEventListener('click', closeDressModal);
     elements.dressModal.addEventListener('click', (e) => {
-        if (e.target === elements.dressModal) {
-            closeDressModal();
+        if (e.target === elements.dressModal) closeDressModal();
+    });
+
+    elements.closeGamesModal.addEventListener('click', closeGamesModal);
+    elements.gamesModal.addEventListener('click', (e) => {
+        if (e.target === elements.gamesModal) closeGamesModal();
+    });
+
+    // Game selection
+    elements.playMemory.addEventListener('click', startMemoryGame);
+    elements.playReaction.addEventListener('click', startReactionGame);
+    elements.playSequence.addEventListener('click', startSequenceGame);
+
+    elements.playAgainBtn.addEventListener('click', () => {
+        if (currentGame) {
+            elements.gameResult.style.display = 'none';
+            if (currentGame === 'memory') startMemoryGame();
+            else if (currentGame === 'reaction') startReactionGame();
+            else if (currentGame === 'sequence') startSequenceGame();
         }
     });
 
-    // Keyboard support
+    elements.backToGamesBtn.addEventListener('click', backToGamesList);
+
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && elements.dressModal.classList.contains('show')) {
-            closeDressModal();
+        if (e.key === 'Escape') {
+            if (elements.dressModal.classList.contains('show')) closeDressModal();
+            if (elements.gamesModal.classList.contains('show')) closeGamesModal();
         }
     });
 }
@@ -195,23 +305,31 @@ function setupEventListeners() {
 function feedPet() {
     if (cooldowns.feed) return;
 
+    // Check if can afford
+    if (gameState.coins < CONFIG.FOOD_COST) {
+        showToast("Not enough coins to feed...", '😰');
+        showReaction('😢');
+        return;
+    }
+
     cooldowns.feed = true;
     elements.feedBtn.disabled = true;
 
+    // Deduct coins
+    gameState.coins -= CONFIG.FOOD_COST;
+
     // Increase hunger (fullness)
     gameState.hunger = Math.min(CONFIG.MAX_STAT, gameState.hunger + CONFIG.FEED_AMOUNT);
-    // Feeding also makes pet a little happy
-    gameState.happiness = Math.min(CONFIG.MAX_STAT, gameState.happiness + 5);
+    gameState.happiness = Math.min(CONFIG.MAX_STAT, gameState.happiness + 3);
 
     updateUI();
+    updatePetMood();
     saveGameState();
 
-    // Animation
     playAnimation('eating');
     showFloatingItem('🍎', 'food');
     showReaction('😋');
 
-    // Cooldown
     setTimeout(() => {
         cooldowns.feed = false;
         elements.feedBtn.disabled = false;
@@ -224,21 +342,17 @@ function petThePet() {
     cooldowns.pet = true;
     elements.petBtn.disabled = true;
 
-    // Increase happiness
     gameState.happiness = Math.min(CONFIG.MAX_STAT, gameState.happiness + CONFIG.PET_AMOUNT);
 
     updateUI();
+    updatePetMood();
     saveGameState();
 
-    // Animation
     playAnimation('happy');
     showFloatingItem('💕', 'heart');
     showReaction(getHappyReaction());
-
-    // Switch to happy eyes temporarily
     showHappyEyes();
 
-    // Cooldown
     setTimeout(() => {
         cooldowns.pet = false;
         elements.petBtn.disabled = false;
@@ -252,21 +366,18 @@ function getHappyReaction() {
 
 // ===== Animations =====
 function playAnimation(type) {
-    elements.pet.classList.remove('idle', 'happy', 'eating');
+    elements.pet.classList.remove('idle', 'happy', 'eating', 'sad');
 
-    // Force reflow to restart animation
     void elements.pet.offsetWidth;
-
     elements.pet.classList.add(type);
 
-    if (type === 'eating') {
-        showEatingMouth();
-    }
+    if (type === 'eating') showEatingMouth();
 
     setTimeout(() => {
         elements.pet.classList.remove(type);
         elements.pet.classList.add('idle');
         hideEatingMouth();
+        updatePetMood();
     }, 500);
 }
 
@@ -284,19 +395,13 @@ function showHappyEyes() {
 }
 
 function showEatingMouth() {
-    const normalMouth = elements.pet.querySelector('.mouth');
-    const eatingMouth = elements.pet.querySelector('.eating-mouth');
-
-    normalMouth.style.display = 'none';
-    eatingMouth.style.display = 'block';
+    elements.pet.querySelector('.mouth').style.display = 'none';
+    elements.pet.querySelector('.eating-mouth').style.display = 'block';
 }
 
 function hideEatingMouth() {
-    const normalMouth = elements.pet.querySelector('.mouth');
-    const eatingMouth = elements.pet.querySelector('.eating-mouth');
-
-    normalMouth.style.display = 'block';
-    eatingMouth.style.display = 'none';
+    elements.pet.querySelector('.mouth').style.display = 'block';
+    elements.pet.querySelector('.eating-mouth').style.display = 'none';
 }
 
 function showFloatingItem(emoji, type) {
@@ -304,7 +409,6 @@ function showFloatingItem(emoji, type) {
     item.className = `floating-item ${type === 'food' ? 'food-item' : ''}`;
     item.textContent = emoji;
 
-    // Random position around the pet
     const offsetX = Math.random() * 100 - 50;
     const offsetY = type === 'food' ? 0 : Math.random() * 50;
 
@@ -312,26 +416,21 @@ function showFloatingItem(emoji, type) {
     item.style.top = `calc(50% + ${offsetY}px)`;
 
     elements.floatingItems.appendChild(item);
-
-    // Remove after animation
-    setTimeout(() => {
-        item.remove();
-    }, 1000);
+    setTimeout(() => item.remove(), 1000);
 }
 
 function showReaction(emoji) {
     elements.reactionBubble.textContent = emoji;
     elements.reactionBubble.classList.add('show');
-
-    setTimeout(() => {
-        elements.reactionBubble.classList.remove('show');
-    }, 1500);
+    setTimeout(() => elements.reactionBubble.classList.remove('show'), 1500);
 }
 
-// ===== Dress Up Modal =====
+// ===== Shop Modal =====
 function openDressModal() {
     elements.dressModal.classList.add('show');
+    elements.modalCoins.textContent = gameState.coins;
     document.body.style.overflow = 'hidden';
+    updateShopItems();
 }
 
 function closeDressModal() {
@@ -340,121 +439,175 @@ function closeDressModal() {
 }
 
 function renderWardrobe() {
-    // Render hats
     WARDROBE.hats.forEach(item => {
-        const btn = createWardrobeItem(item, 'hat');
+        const btn = createShopItem(item, 'hats');
         elements.hatsGrid.appendChild(btn);
     });
 
-    // Render accessories
     WARDROBE.accessories.forEach(item => {
-        const btn = createWardrobeItem(item, 'accessory');
+        const btn = createShopItem(item, 'accessories');
         elements.accessoriesGrid.appendChild(btn);
     });
 
-    // Render colors
     WARDROBE.colors.forEach(item => {
-        const btn = createColorItem(item);
+        const btn = createColorShopItem(item);
         elements.colorsGrid.appendChild(btn);
     });
 }
 
-function createWardrobeItem(item, type) {
+function createShopItem(item, category) {
     const btn = document.createElement('button');
     btn.className = 'wardrobe-item';
     btn.dataset.id = item.id;
-    btn.dataset.type = type;
-    btn.textContent = item.emoji;
+    btn.dataset.category = category;
+    btn.innerHTML = item.emoji;
     btn.setAttribute('aria-label', item.name);
 
     if (item.id === 'none') {
         btn.classList.add('none');
+    } else {
+        const price = PRICES[category][item.id];
+        const priceTag = document.createElement('span');
+        priceTag.className = 'item-price';
+        priceTag.textContent = `🪙${price}`;
+        btn.appendChild(priceTag);
     }
 
-    if (gameState.outfit[type] === item.id) {
-        btn.classList.add('selected');
-    }
-
-    btn.addEventListener('click', () => selectWardrobeItem(item, type, btn));
-
+    btn.addEventListener('click', () => handleShopItemClick(item, category, btn));
     return btn;
 }
 
-function createColorItem(item) {
+function createColorShopItem(item) {
     const btn = document.createElement('button');
     btn.className = 'wardrobe-item color-item';
     btn.dataset.id = item.id;
-    btn.dataset.type = 'color';
+    btn.dataset.category = 'colors';
     btn.style.background = item.color;
     btn.setAttribute('aria-label', item.name);
 
-    if (gameState.outfit.color === item.id) {
-        btn.classList.add('selected');
+    const price = PRICES.colors[item.id];
+    if (price > 0) {
+        const priceTag = document.createElement('span');
+        priceTag.className = 'item-price';
+        priceTag.textContent = `🪙${price}`;
+        priceTag.style.background = 'rgba(255,255,255,0.9)';
+        btn.appendChild(priceTag);
     }
 
-    btn.addEventListener('click', () => selectColorItem(item, btn));
-
+    btn.addEventListener('click', () => handleColorClick(item, btn));
     return btn;
 }
 
-function selectWardrobeItem(item, type, btn) {
-    // Update state
-    gameState.outfit[type] = item.id;
-    saveGameState();
+function handleShopItemClick(item, category, btn) {
+    const type = category === 'hats' ? 'hat' : 'accessory';
+    const isOwned = gameState.owned[category].includes(item.id);
 
-    // Update UI
-    const grid = type === 'hat' ? elements.hatsGrid : elements.accessoriesGrid;
-    grid.querySelectorAll('.wardrobe-item').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
+    if (isOwned || item.id === 'none') {
+        // Equip item
+        gameState.outfit[type] = item.id;
+        saveGameState();
+        updateShopItems();
+        applyOutfit();
 
-    // Apply to pet
-    applyOutfit();
-
-    // Happy reaction
-    if (item.id !== 'none') {
-        playAnimation('happy');
-        showReaction('✨');
+        if (item.id !== 'none') {
+            playAnimation('happy');
+            showReaction('✨');
+        }
+    } else {
+        // Try to buy
+        const price = PRICES[category][item.id];
+        if (gameState.coins >= price) {
+            gameState.coins -= price;
+            gameState.owned[category].push(item.id);
+            gameState.outfit[type] = item.id;
+            saveGameState();
+            updateUI();
+            updateShopItems();
+            applyOutfit();
+            showToast(`Bought ${item.name}!`, '🎉');
+            playAnimation('happy');
+        } else {
+            showToast(`Need ${price - gameState.coins} more coins...`, '😢');
+        }
     }
 }
 
-function selectColorItem(item, btn) {
-    // Update state
-    gameState.outfit.color = item.id;
-    saveGameState();
+function handleColorClick(item, btn) {
+    const isOwned = gameState.owned.colors.includes(item.id);
 
-    // Update UI
-    elements.colorsGrid.querySelectorAll('.wardrobe-item').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
+    if (isOwned) {
+        gameState.outfit.color = item.id;
+        saveGameState();
+        updateShopItems();
+        applyPetColor(item);
+        playAnimation('happy');
+        showReaction('🌈');
+    } else {
+        const price = PRICES.colors[item.id];
+        if (gameState.coins >= price) {
+            gameState.coins -= price;
+            gameState.owned.colors.push(item.id);
+            gameState.outfit.color = item.id;
+            saveGameState();
+            updateUI();
+            updateShopItems();
+            applyPetColor(item);
+            showToast(`New color unlocked!`, '🎨');
+            playAnimation('happy');
+        } else {
+            showToast(`Need ${price - gameState.coins} more coins...`, '😢');
+        }
+    }
+}
 
-    // Apply to pet
-    applyPetColor(item);
+function updateShopItems() {
+    // Update hats
+    elements.hatsGrid.querySelectorAll('.wardrobe-item').forEach(btn => {
+        const id = btn.dataset.id;
+        const isOwned = gameState.owned.hats.includes(id);
+        const isEquipped = gameState.outfit.hat === id;
 
-    // Happy reaction
-    playAnimation('happy');
-    showReaction('🌈');
+        btn.classList.toggle('owned', isOwned && id !== 'none');
+        btn.classList.toggle('equipped', isEquipped);
+        btn.classList.toggle('locked', !isOwned && id !== 'none');
+    });
+
+    // Update accessories
+    elements.accessoriesGrid.querySelectorAll('.wardrobe-item').forEach(btn => {
+        const id = btn.dataset.id;
+        const isOwned = gameState.owned.accessories.includes(id);
+        const isEquipped = gameState.outfit.accessory === id;
+
+        btn.classList.toggle('owned', isOwned && id !== 'none');
+        btn.classList.toggle('equipped', isEquipped);
+        btn.classList.toggle('locked', !isOwned && id !== 'none');
+    });
+
+    // Update colors
+    elements.colorsGrid.querySelectorAll('.wardrobe-item').forEach(btn => {
+        const id = btn.dataset.id;
+        const isOwned = gameState.owned.colors.includes(id);
+        const isEquipped = gameState.outfit.color === id;
+
+        btn.classList.toggle('owned', isOwned);
+        btn.classList.toggle('equipped', isEquipped);
+        btn.classList.toggle('locked', !isOwned);
+    });
+
+    elements.modalCoins.textContent = gameState.coins;
 }
 
 function applyOutfit() {
-    // Clear existing accessories
     elements.accessories.innerHTML = '';
 
-    // Apply hat
     const hat = WARDROBE.hats.find(h => h.id === gameState.outfit.hat);
-    if (hat && hat.svg) {
-        elements.accessories.innerHTML += hat.svg;
-    }
+    if (hat?.svg) elements.accessories.innerHTML += hat.svg;
 
-    // Apply accessory
     const accessory = WARDROBE.accessories.find(a => a.id === gameState.outfit.accessory);
-    if (accessory && accessory.svg) {
-        elements.accessories.innerHTML += accessory.svg;
-    }
+    if (accessory?.svg) elements.accessories.innerHTML += accessory.svg;
 
-    // Apply color
     const color = WARDROBE.colors.find(c => c.id === gameState.outfit.color);
-    if (color) {
-        applyPetColor(color);
-    }
+    if (color) applyPetColor(color);
 }
 
 function applyPetColor(colorItem) {
@@ -465,15 +618,389 @@ function applyPetColor(colorItem) {
     const blushes = elements.pet.querySelectorAll('.blush');
     const earInners = elements.pet.querySelectorAll('.ear-inner');
 
-    // Apply main color
     petBody.setAttribute('fill', colorItem.color);
     ears.forEach(ear => ear.setAttribute('fill', colorItem.color));
     arms.forEach(arm => arm.setAttribute('fill', colorItem.color));
     feet.forEach(foot => foot.setAttribute('fill', colorItem.color));
-
-    // Apply blush color
     blushes.forEach(blush => blush.setAttribute('fill', colorItem.blush));
     earInners.forEach(inner => inner.setAttribute('fill', colorItem.blush));
+}
+
+// ===== Games Modal =====
+function openGamesModal() {
+    elements.gamesModal.classList.add('show');
+    elements.gamesModalCoins.textContent = gameState.coins;
+    document.body.style.overflow = 'hidden';
+    backToGamesList();
+}
+
+function closeGamesModal() {
+    clearAllGameTimers();
+    elements.gamesModal.classList.remove('show');
+    document.body.style.overflow = '';
+    currentGame = null;
+}
+
+function backToGamesList() {
+    clearAllGameTimers();
+    elements.gamesList.style.display = 'flex';
+    elements.memoryGame.style.display = 'none';
+    elements.reactionGame.style.display = 'none';
+    elements.sequenceGame.style.display = 'none';
+    elements.gameResult.style.display = 'none';
+    currentGame = null;
+}
+
+function clearAllGameTimers() {
+    gameTimers.forEach(t => clearInterval(t));
+    gameTimers.forEach(t => clearTimeout(t));
+    gameTimers = [];
+}
+
+function showGameResult(coins, success) {
+    clearAllGameTimers();
+
+    elements.memoryGame.style.display = 'none';
+    elements.reactionGame.style.display = 'none';
+    elements.sequenceGame.style.display = 'none';
+    elements.gameResult.style.display = 'block';
+
+    const resultIcon = document.getElementById('resultIcon');
+    const resultText = document.getElementById('resultText');
+    const resultCoins = document.getElementById('resultCoins');
+
+    if (coins > 0) {
+        gameState.coins += coins;
+        saveGameState();
+        updateUI();
+        elements.gamesModalCoins.textContent = gameState.coins;
+
+        resultIcon.textContent = success ? '🎉' : '😅';
+        resultText.textContent = success ? 'Great work!' : 'Not bad...';
+        resultCoins.textContent = `+${coins} 🪙`;
+    } else {
+        resultIcon.textContent = '😢';
+        resultText.textContent = 'You earned nothing...';
+        resultCoins.textContent = 'Better luck next time';
+    }
+}
+
+// ===== Memory Game =====
+function startMemoryGame() {
+    currentGame = 'memory';
+    elements.gamesList.style.display = 'none';
+    elements.gameResult.style.display = 'none';
+    elements.memoryGame.style.display = 'block';
+
+    const emojis = ['🍎', '🍕', '🍩', '🧁', '🍪', '🍰'];
+    const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById('memoryGrid');
+    grid.innerHTML = '';
+
+    let flipped = [];
+    let matched = 0;
+    let timeLeft = 18; // Short timer for difficulty
+    let canFlip = true;
+
+    const timerEl = document.getElementById('memoryTimer');
+    const scoreEl = document.getElementById('memoryScore');
+
+    timerEl.textContent = `⏱️ ${timeLeft}s`;
+    timerEl.classList.remove('warning');
+    scoreEl.textContent = `Pairs: 0/6`;
+
+    cards.forEach((emoji, i) => {
+        const card = document.createElement('button');
+        card.className = 'memory-card';
+        card.dataset.index = i;
+        card.dataset.emoji = emoji;
+
+        card.addEventListener('click', () => {
+            if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            card.classList.add('flipped');
+            card.textContent = emoji;
+            flipped.push(card);
+
+            if (flipped.length === 2) {
+                canFlip = false;
+                const [a, b] = flipped;
+
+                if (a.dataset.emoji === b.dataset.emoji) {
+                    a.classList.add('matched');
+                    b.classList.add('matched');
+                    matched++;
+                    scoreEl.textContent = `Pairs: ${matched}/6`;
+                    flipped = [];
+                    canFlip = true;
+
+                    if (matched === 6) {
+                        clearInterval(timer);
+                        const bonus = Math.floor(timeLeft / 3);
+                        showGameResult(5 + bonus, true);
+                    }
+                } else {
+                    const timeout = setTimeout(() => {
+                        a.classList.remove('flipped');
+                        b.classList.remove('flipped');
+                        a.textContent = '';
+                        b.textContent = '';
+                        flipped = [];
+                        canFlip = true;
+                    }, 600);
+                    gameTimers.push(timeout);
+                }
+            }
+        });
+
+        grid.appendChild(card);
+    });
+
+    const timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `⏱️ ${timeLeft}s`;
+
+        if (timeLeft <= 5) timerEl.classList.add('warning');
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            const reward = matched >= 4 ? matched - 1 : 0;
+            showGameResult(reward, false);
+        }
+    }, 1000);
+
+    gameTimers.push(timer);
+}
+
+// ===== Reaction Game =====
+function startReactionGame() {
+    currentGame = 'reaction';
+    elements.gamesList.style.display = 'none';
+    elements.gameResult.style.display = 'none';
+    elements.reactionGame.style.display = 'block';
+
+    const zone = document.getElementById('reactionZone');
+    const catcher = document.getElementById('catcher');
+    const timerEl = document.getElementById('reactionTimer');
+    const scoreEl = document.getElementById('reactionScore');
+
+    let timeLeft = 12;
+    let caught = 0;
+    let missed = 0;
+    let catcherX = 50;
+
+    timerEl.textContent = `⏱️ ${timeLeft}s`;
+    timerEl.classList.remove('warning');
+    scoreEl.textContent = `Caught: 0`;
+    catcher.style.left = '50%';
+
+    // Clear existing targets
+    zone.querySelectorAll('.catch-target').forEach(t => t.remove());
+
+    // Touch/mouse controls
+    const moveHandler = (e) => {
+        const rect = zone.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        catcherX = ((clientX - rect.left) / rect.width) * 100;
+        catcherX = Math.max(10, Math.min(90, catcherX));
+        catcher.style.left = `${catcherX}%`;
+    };
+
+    zone.addEventListener('mousemove', moveHandler);
+    zone.addEventListener('touchmove', moveHandler);
+
+    // Spawn treats
+    const treats = ['🍎', '🍕', '🍩', '🧁', '💎', '⭐'];
+
+    function spawnTreat() {
+        if (timeLeft <= 0) return;
+
+        const target = document.createElement('div');
+        target.className = 'catch-target';
+        target.textContent = treats[Math.floor(Math.random() * treats.length)];
+
+        const x = 10 + Math.random() * 80;
+        target.style.left = `${x}%`;
+
+        // Faster fall speed for difficulty
+        const fallDuration = 1.2 + Math.random() * 0.5;
+        target.style.animation = `fall ${fallDuration}s linear forwards`;
+
+        zone.appendChild(target);
+
+        // Check for catch
+        const checkInterval = setInterval(() => {
+            const targetRect = target.getBoundingClientRect();
+            const catcherRect = catcher.getBoundingClientRect();
+
+            const targetCenterX = targetRect.left + targetRect.width / 2;
+            const catcherCenterX = catcherRect.left + catcherRect.width / 2;
+
+            // Check if target is at catcher height and close enough
+            if (targetRect.bottom >= catcherRect.top && targetRect.top <= catcherRect.bottom) {
+                if (Math.abs(targetCenterX - catcherCenterX) < 40) {
+                    caught++;
+                    scoreEl.textContent = `Caught: ${caught}`;
+                    target.remove();
+                    clearInterval(checkInterval);
+                    return;
+                }
+            }
+
+            // Missed
+            if (targetRect.top > zone.getBoundingClientRect().bottom) {
+                missed++;
+                target.remove();
+                clearInterval(checkInterval);
+            }
+        }, 50);
+
+        gameTimers.push(checkInterval);
+
+        // Remove after animation
+        const removeTimeout = setTimeout(() => target.remove(), fallDuration * 1000 + 100);
+        gameTimers.push(removeTimeout);
+    }
+
+    // Spawn treats at irregular intervals (harder to predict)
+    function scheduleSpawn() {
+        if (timeLeft <= 0) return;
+        const delay = 400 + Math.random() * 600;
+        const timeout = setTimeout(() => {
+            spawnTreat();
+            scheduleSpawn();
+        }, delay);
+        gameTimers.push(timeout);
+    }
+
+    scheduleSpawn();
+
+    const timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `⏱️ ${timeLeft}s`;
+
+        if (timeLeft <= 3) timerEl.classList.add('warning');
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            zone.removeEventListener('mousemove', moveHandler);
+            zone.removeEventListener('touchmove', moveHandler);
+
+            // Harsh scoring - need at least 5 to get anything
+            const reward = caught >= 8 ? 6 : caught >= 6 ? 4 : caught >= 5 ? 2 : 0;
+            showGameResult(reward, caught >= 6);
+        }
+    }, 1000);
+
+    gameTimers.push(timer);
+}
+
+// ===== Sequence Game (Simon Says) =====
+function startSequenceGame() {
+    currentGame = 'sequence';
+    elements.gamesList.style.display = 'none';
+    elements.gameResult.style.display = 'none';
+    elements.sequenceGame.style.display = 'block';
+
+    const buttons = document.querySelectorAll('.sequence-btn');
+    const levelEl = document.getElementById('sequenceLevel');
+    const statusEl = document.getElementById('sequenceStatus');
+
+    let sequence = [];
+    let playerSequence = [];
+    let level = 1;
+    let canInput = false;
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    function addToSequence() {
+        sequence.push(Math.floor(Math.random() * 4));
+        levelEl.textContent = `Level: ${level}`;
+        statusEl.textContent = 'Watch...';
+        playSequence();
+    }
+
+    function playSequence() {
+        canInput = false;
+        let i = 0;
+
+        // Faster playback at higher levels
+        const speed = Math.max(300, 500 - level * 30);
+
+        function playNext() {
+            if (i >= sequence.length) {
+                canInput = true;
+                buttons.forEach(btn => btn.disabled = false);
+                statusEl.textContent = 'Your turn!';
+                return;
+            }
+
+            const btn = buttons[sequence[i]];
+            btn.classList.add('active');
+
+            const timeout1 = setTimeout(() => {
+                btn.classList.remove('active');
+                i++;
+                const timeout2 = setTimeout(playNext, speed / 2);
+                gameTimers.push(timeout2);
+            }, speed);
+
+            gameTimers.push(timeout1);
+        }
+
+        const startDelay = setTimeout(playNext, 500);
+        gameTimers.push(startDelay);
+    }
+
+    function handleButtonClick(index) {
+        if (!canInput) return;
+
+        const btn = buttons[index];
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 150);
+
+        playerSequence.push(index);
+
+        const currentIndex = playerSequence.length - 1;
+
+        if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+            // Wrong - game over
+            buttons.forEach(btn => btn.disabled = true);
+            statusEl.textContent = 'Wrong!';
+
+            // Harsh scoring - need level 4+ for any reward
+            const reward = level >= 6 ? 12 : level >= 5 ? 8 : level >= 4 ? 4 : 0;
+            const timeout = setTimeout(() => showGameResult(reward, level >= 5), 500);
+            gameTimers.push(timeout);
+            return;
+        }
+
+        if (playerSequence.length === sequence.length) {
+            // Completed level
+            level++;
+            playerSequence = [];
+            canInput = false;
+            buttons.forEach(btn => btn.disabled = true);
+            statusEl.textContent = 'Good!';
+
+            // Max level 8
+            if (level > 8) {
+                const timeout = setTimeout(() => showGameResult(12, true), 500);
+                gameTimers.push(timeout);
+                return;
+            }
+
+            const timeout = setTimeout(addToSequence, 1000);
+            gameTimers.push(timeout);
+        }
+    }
+
+    buttons.forEach((btn, i) => {
+        btn.onclick = () => handleButtonClick(i);
+    });
+
+    addToSequence();
 }
 
 // ===== Start the game =====
