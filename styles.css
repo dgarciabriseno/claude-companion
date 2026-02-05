@@ -1,0 +1,682 @@
+/* ===== CSS Reset & Base ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary-color: #FFB6C1;
+    --secondary-color: #a8d8ea;
+    --accent-color: #aa96da;
+    --happiness-color: #ff6b9d;
+    --hunger-color: #7ed957;
+    --background-gradient: linear-gradient(180deg, #a8d8ea 0%, #f8e1f4 50%, #fcf6f5 100%);
+    --ground-color: #98d982;
+    --ground-dark: #7ec268;
+    --text-color: #4a4a4a;
+    --white: #ffffff;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+html {
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--background-gradient);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    color: var(--text-color);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ===== App Container ===== */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* ===== Header ===== */
+.header {
+    padding: 1rem;
+    text-align: center;
+    z-index: 10;
+}
+
+.pet-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 0 var(--white);
+    margin-bottom: 0.75rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--white);
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.stat-icon {
+    font-size: 1.2rem;
+}
+
+.stat-bar {
+    width: 80px;
+    height: 12px;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stat-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease-out;
+}
+
+.happiness-fill {
+    background: linear-gradient(90deg, #ff9a9e, #ff6b9d);
+}
+
+.hunger-fill {
+    background: linear-gradient(90deg, #a8e063, #7ed957);
+}
+
+/* ===== Pet Area ===== */
+.pet-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 2rem;
+}
+
+.background-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.cloud {
+    position: absolute;
+    background: var(--white);
+    border-radius: 50px;
+    opacity: 0.8;
+}
+
+.cloud::before,
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: var(--white);
+    border-radius: 50%;
+}
+
+.cloud-1 {
+    width: 80px;
+    height: 30px;
+    top: 10%;
+    left: 10%;
+    animation: float 8s ease-in-out infinite;
+}
+
+.cloud-1::before {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 10px;
+}
+
+.cloud-1::after {
+    width: 30px;
+    height: 30px;
+    top: -15px;
+    left: 40px;
+}
+
+.cloud-2 {
+    width: 100px;
+    height: 35px;
+    top: 5%;
+    right: 15%;
+    animation: float 10s ease-in-out infinite reverse;
+}
+
+.cloud-2::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 15px;
+}
+
+.cloud-2::after {
+    width: 35px;
+    height: 35px;
+    top: -18px;
+    left: 55px;
+}
+
+.cloud-3 {
+    width: 70px;
+    height: 25px;
+    top: 20%;
+    left: 50%;
+    animation: float 12s ease-in-out infinite;
+}
+
+.cloud-3::before {
+    width: 35px;
+    height: 35px;
+    top: -18px;
+    left: 8px;
+}
+
+.cloud-3::after {
+    width: 25px;
+    height: 25px;
+    top: -12px;
+    left: 35px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-10px) translateX(5px); }
+}
+
+/* ===== Pet Container ===== */
+.pet-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    z-index: 5;
+}
+
+.pet {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+/* Idle Animation */
+.pet.idle {
+    animation: idle-bounce 2s ease-in-out infinite;
+}
+
+@keyframes idle-bounce {
+    0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
+    50% { transform: translateY(-8px) scaleY(1.02) scaleX(0.98); }
+}
+
+/* Happy Animation */
+.pet.happy {
+    animation: happy-wiggle 0.3s ease-in-out;
+}
+
+@keyframes happy-wiggle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-5deg) scale(1.05); }
+    75% { transform: rotate(5deg) scale(1.05); }
+}
+
+/* Eating Animation */
+.pet.eating {
+    animation: eating-chomp 0.4s ease-in-out;
+}
+
+@keyframes eating-chomp {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08) translateY(5px); }
+}
+
+/* Pet parts hover effect */
+.pet:active {
+    transform: scale(0.95);
+}
+
+/* Ear wiggle on happy */
+.pet.happy .ear {
+    animation: ear-wiggle 0.3s ease-in-out;
+}
+
+@keyframes ear-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(10deg); }
+}
+
+/* Arm wave on happy */
+.pet.happy .right-arm {
+    animation: arm-wave 0.3s ease-in-out;
+    transform-origin: center top;
+}
+
+@keyframes arm-wave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-20deg); }
+}
+
+/* Blush pulsing when happy */
+.pet.happy .blush {
+    animation: blush-pulse 0.3s ease-in-out;
+}
+
+@keyframes blush-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* ===== Floating Items (food, hearts) ===== */
+.floating-items {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.floating-item {
+    position: absolute;
+    font-size: 2rem;
+    animation: float-up 1s ease-out forwards;
+}
+
+@keyframes float-up {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-80px) scale(1.5);
+    }
+}
+
+.food-item {
+    animation: food-fall 0.5s ease-in forwards;
+}
+
+@keyframes food-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(-50px) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(20px) rotate(360deg);
+    }
+}
+
+/* ===== Reaction Bubble ===== */
+.reaction-bubble {
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    background: var(--white);
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.reaction-bubble.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ===== Ground ===== */
+.ground {
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(180deg, var(--ground-color) 0%, var(--ground-dark) 100%);
+    border-radius: 50% 50% 0 0 / 30px 30px 0 0;
+    margin-top: -30px;
+}
+
+/* ===== Action Buttons ===== */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--white);
+    border-radius: 30px 30px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #f5f5f5, #e0e0e0);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow);
+    min-width: 80px;
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-icon {
+    font-size: 1.75rem;
+}
+
+.btn-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.feed-btn:hover, .feed-btn:focus {
+    background: linear-gradient(145deg, #ffe5e5, #ffcccc);
+}
+
+.pet-btn:hover, .pet-btn:focus {
+    background: linear-gradient(145deg, #fff0e5, #ffe0cc);
+}
+
+.dress-btn:hover, .dress-btn:focus {
+    background: linear-gradient(145deg, #f0e5ff, #e0ccff);
+}
+
+/* ===== Modal ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--white);
+    width: 100%;
+    max-width: 500px;
+    max-height: 70vh;
+    border-radius: 30px 30px 0 0;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.close-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f0f0f0;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: background 0.2s ease;
+}
+
+.close-btn:hover {
+    background: #e0e0e0;
+}
+
+/* ===== Wardrobe ===== */
+.wardrobe {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: calc(70vh - 70px);
+}
+
+.wardrobe-category {
+    margin-bottom: 1.5rem;
+}
+
+.wardrobe-category h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.wardrobe-item {
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 15px;
+    background: #f5f5f5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    transition: all 0.2s ease;
+}
+
+.wardrobe-item:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow);
+}
+
+.wardrobe-item.selected {
+    border-color: var(--accent-color);
+    background: #f0e5ff;
+}
+
+.wardrobe-item.none {
+    font-size: 1.5rem;
+    color: #999;
+}
+
+.color-item {
+    border-radius: 50%;
+}
+
+/* ===== Accessories on Pet ===== */
+.accessory {
+    transition: all 0.3s ease;
+}
+
+/* Hat positions */
+.hat-bow {
+    transform: translate(-30px, -50px);
+}
+
+.hat-crown {
+    transform: translate(-25px, -55px);
+}
+
+.hat-cap {
+    transform: translate(-30px, -45px);
+}
+
+.hat-flower {
+    transform: translate(-15px, -45px);
+}
+
+.hat-party {
+    transform: translate(-25px, -55px);
+}
+
+/* ===== Responsive Design ===== */
+@media (min-width: 400px) {
+    .pet-container {
+        width: 220px;
+        height: 220px;
+    }
+
+    .action-btn {
+        padding: 1rem 2rem;
+        min-width: 100px;
+    }
+
+    .btn-icon {
+        font-size: 2rem;
+    }
+
+    .btn-label {
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 500px) {
+    .pet-container {
+        width: 250px;
+        height: 250px;
+    }
+
+    .stat-bar {
+        width: 100px;
+    }
+}
+
+/* Landscape mode adjustments */
+@media (max-height: 500px) {
+    .header {
+        padding: 0.5rem;
+    }
+
+    .pet-name {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .pet-container {
+        width: 150px;
+        height: 150px;
+    }
+
+    .ground {
+        height: 40px;
+    }
+
+    .actions {
+        padding: 0.75rem;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* ===== Touch feedback ===== */
+@media (hover: none) {
+    .action-btn:active {
+        background: linear-gradient(145deg, #e5e5e5, #d0d0d0);
+    }
+
+    .feed-btn:active {
+        background: linear-gradient(145deg, #ffd5d5, #ffbbbb);
+    }
+
+    .pet-btn:active {
+        background: linear-gradient(145deg, #ffe5d5, #ffd0bb);
+    }
+
+    .dress-btn:active {
+        background: linear-gradient(145deg, #e5d5ff, #d0bbff);
+    }
+}
+
+/* ===== Animations for pet colors ===== */
+.pet-body,
+.ear,
+.arm,
+.foot {
+    transition: fill 0.5s ease;
+}
+
+/* ===== Accessibility ===== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for keyboard navigation */
+.action-btn:focus-visible,
+.wardrobe-item:focus-visible,
+.close-btn:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
+}
