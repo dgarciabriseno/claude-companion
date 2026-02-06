@@ -3,13 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
-      - master
       - "claude/virtual-pet-game-suOsO"
   pull_request:
     branches:
-      - main
-      - master
+      - "claude/virtual-pet-game-suOsO"
   workflow_dispatch:
 
 permissions:
