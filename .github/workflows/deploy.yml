@@ -5,6 +5,11 @@ on:
     branches:
       - main
       - master
+      - "claude/virtual-pet-game-suOsO"
+  pull_request:
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
